@@ -2,15 +2,41 @@ import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import {Container, Segment, Header, Icon, Sidebar, Menu, Input} from 'semantic-ui-react';
 
-const AnyReactComponent = ({ text }) => <div>{text}</div>;
+const Marker = (props) => {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      position: 'absolute',
+      transform: 'translate(-50%, -100%)',
+      width: '70vh'
+    }}>
+      <Segment>
+        <Header as='h3' textAlign='center'>{props.text}</Header>
+        <Container text textAlign='justified'>
+          <p>
+            Texto Grande pra caramba que ocupe espaço à beça e quanto mais texto esperamos que quebre a linha corretamente.
+            Vamos botar mais texto para que o troço continue crescendo mais ainda.
+            Vamos botar mais texto para que o troço continue crescendo mais ainda.
+          </p>
+          <p>
+            Vamos botar mais texto para que o troço continue crescendo mais ainda.
+          </p>
+        </Container>
+      </Segment>
+      <Icon name='map marker alternate' size="huge" color="red"/>
+    </div>
+)};
 
 class App extends Component {
   state = {
     center: {
-      lat: 59.95,
-      lng: 30.33
+      lat: -22.849735,
+      lng: -43.315725
     },
-    zoom: 11,
+    zoom: 18,
     sideBarVisible: false
   };
 
@@ -66,10 +92,10 @@ class App extends Component {
                 defaultCenter={this.state.center}
                 defaultZoom={this.state.zoom}
               >
-                <AnyReactComponent
-                  lat={59.955413}
-                  lng={30.337844}
-                  text={'Kreyser Avrora'}
+                <Marker
+                  lat={-22.849735}
+                  lng={-43.315725}
+                  text={'Pátio Carioca'}
                 />
               </GoogleMapReact>
             </div>
