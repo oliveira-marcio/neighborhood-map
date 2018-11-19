@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "google-map-react": "^1.1.0",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-scripts": "2.1.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.83.0",
     "sort-by": "^1.2.0"
   },
   "scripts": {
