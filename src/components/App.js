@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import {Container, Segment, Header, Icon, Sidebar, Menu, Input} from 'semantic-ui-react';
 
-const Marker = (props) => {
+const Marker = ({text, $hover}) => {
   return (
     <div style={{
       display: 'flex',
@@ -14,7 +14,7 @@ const Marker = (props) => {
       width: '70vh'
     }}>
       <Segment>
-        <Header as='h3' textAlign='center'>{props.text}</Header>
+        <Header as='h3' textAlign='center'>{text}</Header>
         <Container text textAlign='justified'>
           <p>
             Texto Grande pra caramba que ocupe espaço à beça e quanto mais texto esperamos que quebre a linha corretamente.
@@ -26,7 +26,11 @@ const Marker = (props) => {
           </p>
         </Container>
       </Segment>
-      <Icon name='map marker alternate' size="huge" color="red"/>
+      <Icon
+        name='map marker alternate'
+        size={$hover ? ("huge") : ("large")}
+        color={$hover ? ("teal") : ("red")}
+      />
     </div>
 )};
 
@@ -91,6 +95,8 @@ class App extends Component {
                 bootstrapURLKeys={{ key: process.env.REACT_APP_MAPS_API_KEY }}
                 defaultCenter={this.state.center}
                 defaultZoom={this.state.zoom}
+                onChildMouseEnter={(i, x) => null}
+                onChildMouseLeave={(i, x) => null}
               >
                 <Marker
                   lat={-22.849735}
