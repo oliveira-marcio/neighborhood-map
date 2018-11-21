@@ -3,14 +3,15 @@ import GoogleMapReact from 'google-map-react';
 import {Container, Segment, Header, Icon, Sidebar, Menu, Input} from 'semantic-ui-react';
 import Marker from './Marker'
 import * as FoursquareAPI from '../utils/FoursquareAPI'
+import sortBy from 'sort-by'
 
 class App extends Component {
   state = {
     center: {
-      lat: -22.849735,
-      lng: -43.315725
+      lat: -22.84406,
+      lng: -43.317548
     },
-    zoom: 17,
+    zoom: 15,
     sideBarVisible: false,
     selectedMarker: "",
     pois: []
@@ -32,13 +33,14 @@ class App extends Component {
 
   componentDidMount(){
 //      FoursquareAPI.testAPI()
-      FoursquareAPI.getAllPOIs()
+//      FoursquareAPI.getAllPOIs()
+      FoursquareAPI.getPizzaPOIs()
       .then(pois => this.setState({pois}))
   }
 
   render() {
     const { sideBarVisible, selectedMarker, pois } = this.state;
-    const filteredPOIs =  pois;
+    const filteredPOIs =  pois.sort(sortBy('name'));
 
     const Markers = filteredPOIs.map(poi => (
       <Marker
