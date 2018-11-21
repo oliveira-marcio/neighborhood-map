@@ -84,6 +84,55 @@ class App extends Component {
     });
   }
 
+  componentDidMount(){
+      const FOURSQUARE_BASE_API_URL = 'https://api.foursquare.com/v2/venues/search?'
+      const FOURSQUARE_CLIENT_ID = "client_id=" + process.env.REACT_APP_FOURSQUARE_CLIENT_ID
+      const FOURSQUARE_CLIENT_SECRET = "&client_secret=" + process.env.REACT_APP_FOURSQUARE_CLIENT_SECRET
+      const API_VERSION = "&v=20130815"
+      const COORDINATES = "&ll=-22.849735,-43.315725"
+      const QUERY = "&query=Patio Carioca"
+      let url = FOURSQUARE_BASE_API_URL + FOURSQUARE_CLIENT_ID + FOURSQUARE_CLIENT_SECRET
+                + API_VERSION + COORDINATES + QUERY;
+
+      fetch(url).then(res => res.json()).then(({meta, response}) => {
+        if(meta.code === 200){
+          if(response.venues.length){
+            const poi = response.venues[0]
+            console.log(`Nome: ${poi.name}\n` +
+                        `Endereço: ${poi.location.address}\n` +
+                        `Cidade: ${poi.location.city}\n` +
+                        `Estado: ${poi.location.state}\n` +
+                        `Pais: ${poi.location.country}\n` +
+                        `CEP: ${poi.location.postalCode}\n` +
+                        `Categoria: ${poi.categories[0].name}`)
+          } else {
+            console.log("Não encontrado")
+          }
+        } else {
+          console.log(`${meta.errorType}: ${meta.errorDetail}`)
+        }
+      })
+
+      const id = "4bb667511344b713c6739d04" // Carioca Shopping
+      const FOURSQUARE_BASE_PHOTOS_URL = `https://api.foursquare.com/v2/venues/${id}/photos?`
+      const PHOTO_VERSION = "&v=20150603"
+      url = FOURSQUARE_BASE_PHOTOS_URL + FOURSQUARE_CLIENT_ID + FOURSQUARE_CLIENT_SECRET
+                + PHOTO_VERSION;
+
+      fetch(url).then(res => res.json()).then(({meta, response}) => {
+        if(meta.code === 200){
+          const items = response.photos.items
+          if(items.length){
+            console.log(`${items[0].prefix}300x300${items[0].suffix}`)
+          } else {
+            console.log("Não encontrado")
+          }
+        } else {
+          console.log(`${meta.errorType}: ${meta.errorDetail}`)
+        }
+      })
+  }
+
   render() {
     const { sideBarVisible, selectedMarker } = this.state
 
