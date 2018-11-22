@@ -4,6 +4,7 @@ import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive} from
 import Marker from './Marker'
 import * as FoursquareAPI from '../utils/FoursquareAPI'
 import sortBy from 'sort-by'
+import {removeCaseAndAccents} from '../utils/helpers'
 
 class App extends Component {
   state = {
@@ -14,6 +15,7 @@ class App extends Component {
     zoom: 15,
     sideBarVisible: false,
     selectedMarker: "",
+    filter: "",
     pois: [],
     sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
   };
@@ -42,16 +44,23 @@ class App extends Component {
     }
   }
 
+  setFilter = (e) => {
+    this.setState({filter: e.target.value});
+  }
+
   componentDidMount(){
 //      FoursquareAPI.testAPI()
-//      FoursquareAPI.getAllPOIs()
-      FoursquareAPI.getPizzaPOIs()
+//      FoursquareAPI.getPizzaPOIs()
+      FoursquareAPI.getAllPOIs()
       .then(pois => this.setState({pois}))
   }
 
   render() {
-    const { sideBarVisible, selectedMarker, pois, sideBarWidth } = this.state;
-    const filteredPOIs =  pois.sort(sortBy('name'));
+    const { sideBarVisible, selectedMarker, pois, sideBarWidth, filter } = this.state;
+    const filteredPOIs =  pois.filter(p =>
+      removeCaseAndAccents(p.name)
+      .includes(removeCaseAndAccents(filter))
+    ).sort(sortBy('name'));
 
     const Markers = filteredPOIs.map(poi => (
       <Marker
@@ -88,7 +97,7 @@ class App extends Component {
             <Menu.Item header>
               Locations
             </Menu.Item>
-            <Input fluid icon={<Icon name='filter' inverted bordered color='teal' />} placeholder='Filter...' />
+            <Input fluid icon={<Icon name='filter' inverted bordered color='teal' />} placeholder='Filter...' onChange={this.setFilter}/>
             <Responsive onUpdate={() => this.toggleSideBarWidth()} />
             { MenuPOIs }
           </Sidebar>
