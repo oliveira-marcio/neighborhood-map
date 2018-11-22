@@ -81,14 +81,14 @@ class App extends Component {
             { MenuPOIs }
           </Sidebar>
 
-          <Sidebar.Pusher>
-            <Segment basic vertical inverted>
+          <Sidebar.Pusher style={{height: '100vh'}}>
+            <Segment basic vertical inverted style={{height: '60px'}}>
               <Header as='h1' inverted color='grey'>
                 <Icon name='bars' onClick={this.handleShowClick}/>
                 Neighborhood Map
               </Header>
             </Segment>
-            <div style={{ margin: 0, height: '90vh', width: '100%' }}>
+            <div style={{ position: 'absolute', top: '60px', right: '0', bottom: '0',  left: '0' }}>
               <GoogleMapReact
                 bootstrapURLKeys={{ key: process.env.REACT_APP_MAPS_API_KEY }}
                 center={this.state.center}

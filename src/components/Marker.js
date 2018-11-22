@@ -30,6 +30,7 @@ class Marker extends Component {
         alignItems: 'center',
         justifyContent: 'flex-end',
         position: 'absolute',
+        zIndex: displayInfoWindow ? '1' : '0',
         transform: 'translate(-50%, -100%)',
         width: '70vh'
       }}>
