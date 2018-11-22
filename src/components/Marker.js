@@ -31,8 +31,10 @@ class Marker extends Component {
         justifyContent: 'flex-end',
         position: 'absolute',
         zIndex: displayInfoWindow ? '1' : '0',
+        cursor: "default",
         transform: 'translate(-50%, -100%)',
-        width: '70vh'
+        width: '80vw',
+        maxWidth: '600px'
       }}>
       {displayInfoWindow && (
         <Segment>

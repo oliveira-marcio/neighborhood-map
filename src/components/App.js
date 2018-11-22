@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
-import {Container, Segment, Header, Icon, Sidebar, Menu, Input} from 'semantic-ui-react';
+import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive} from 'semantic-ui-react';
 import Marker from './Marker'
 import * as FoursquareAPI from '../utils/FoursquareAPI'
 import sortBy from 'sort-by'
@@ -14,7 +14,8 @@ class App extends Component {
     zoom: 15,
     sideBarVisible: false,
     selectedMarker: "",
-    pois: []
+    pois: [],
+    sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
   };
 
   handleHideClick = () => this.setState({ sideBarVisible: false })
@@ -31,6 +32,16 @@ class App extends Component {
     });
   }
 
+  toggleSideBarWidth = () => {
+    const {sideBarWidth} = this.state
+    if(sideBarWidth === 'wide' && window.innerWidth <= Responsive.onlyMobile.maxWidth){
+      this.setState({sideBarWidth: 'thin'})
+    }
+    if(sideBarWidth === 'thin' && window.innerWidth > Responsive.onlyMobile.maxWidth){
+      this.setState({sideBarWidth: 'wide'})
+    }
+  }
+
   componentDidMount(){
 //      FoursquareAPI.testAPI()
 //      FoursquareAPI.getAllPOIs()
@@ -39,7 +50,7 @@ class App extends Component {
   }
 
   render() {
-    const { sideBarVisible, selectedMarker, pois } = this.state;
+    const { sideBarVisible, selectedMarker, pois, sideBarWidth } = this.state;
     const filteredPOIs =  pois.sort(sortBy('name'));
 
     const Markers = filteredPOIs.map(poi => (
@@ -72,12 +83,13 @@ class App extends Component {
             onHide={this.handleSidebarHide}
             vertical
             visible={sideBarVisible}
-            width='thin'
+            width={sideBarWidth}
           >
             <Menu.Item header>
               Locations
             </Menu.Item>
             <Input fluid icon={<Icon name='filter' inverted bordered color='teal' />} placeholder='Filter...' />
+            <Responsive onUpdate={() => this.toggleSideBarWidth()} />
             { MenuPOIs }
           </Sidebar>
 
