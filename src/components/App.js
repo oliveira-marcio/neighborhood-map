@@ -14,7 +14,7 @@ class App extends Component {
     },
     zoom: 15,
     sideBarVisible: false,
-    selectedMarker: "",
+    selectedMarker: {id: ""},
     filter: "",
     pois: [],
     sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
@@ -24,14 +24,19 @@ class App extends Component {
   handleShowClick = () => this.setState({ sideBarVisible: true })
   handleSidebarHide = () => this.setState({ sideBarVisible: false })
   onChildClick = (key, childProps) => {
+    // TODO: Implementar clique do menu e/ou seleção do mesmo quando Marker for clicado
     const {selectedMarker} = this.state;
     this.setState({
-      selectedMarker: (selectedMarker === childProps.id ? "" : childProps.id),
+      selectedMarker: {id: selectedMarker.id === childProps.id ? "" : childProps.id},
       center: {
         lat: childProps.lat,
         lng: childProps.lng
       }
     });
+    FoursquareAPI.getPOIDetails(childProps.id)
+    .then(selectedMarker => this.setState({selectedMarker}))
+    // TODO: Idéia, fazer caching dos dados baixado no "pois" para evitar re-fetch
+    // TODO: Tratar vários fetchs simultâneos que setam o estado. Idéia: shouldComponentUpdate
   }
 
   toggleSideBarWidth = () => {
@@ -53,6 +58,8 @@ class App extends Component {
 //      FoursquareAPI.getPizzaPOIs()
       FoursquareAPI.getAllPOIs()
       .then(pois => this.setState({pois}))
+      // TODO: Colocar tela de loading enquanto POI's são carregados
+      // TODO: Colocar tela de erro
   }
 
   render() {
@@ -68,7 +75,7 @@ class App extends Component {
         id={poi.id}
         lat={poi.location.lat}
         lng={poi.location.lng}
-        text={poi.name}
+        title={poi.name}
         selectedMarker={selectedMarker}
       />
     ))

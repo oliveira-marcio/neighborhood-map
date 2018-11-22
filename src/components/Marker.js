@@ -14,14 +14,35 @@ class Marker extends Component {
 
   componentDidUpdate(prevProps){
     const {selectedMarker, id} = this.props;
-    if(prevProps.selectedMarker !== selectedMarker){
-      this.setState({ displayInfoWindow: selectedMarker === id});
+    if(prevProps.selectedMarker.id !== selectedMarker.id){
+      this.setState({ displayInfoWindow: selectedMarker.id === id});
     }
   }
 
+  // TODO: Colocar tela de erro em caso de erro no fetching
   render(){
-    const {text, $hover} = this.props;
+    const {title, $hover, selectedMarker} = this.props;
     const {displayInfoWindow} = this.state;
+    const Content = selectedMarker.hasOwnProperty("name") ? (
+      <Container text fluid textAlign='justified'>
+        <p>
+          Texto Grande pra caramba que ocupe espaço à beça e quanto mais texto esperamos que quebre a linha corretamente.
+          Vamos botar mais texto para que o troço continue crescendo mais ainda.
+          Vamos botar mais texto para que o troço continue crescendo mais ainda.
+        </p>
+        <p>
+          Vamos botar mais texto para que o troço continue crescendo mais ainda.
+        </p>
+      </Container>
+    ) : (
+      <div>
+      <Icon.Group size='huge'>
+        <Icon loading size='big' name='circle notch' />
+        <Icon name='foursquare' />
+      </Icon.Group>
+      <Container fluid text>Loading data...</Container>
+      </div>
+    )
 
     return (
       <div style={{
@@ -36,18 +57,9 @@ class Marker extends Component {
         maxWidth: '600px'
       }}>
       {displayInfoWindow && (
-        <Segment style={{width: '100%'}}>
-          <Header as='h3' textAlign='center'>{text}</Header>
-          <Container text textAlign='justified'>
-            <p>
-              Texto Grande pra caramba que ocupe espaço à beça e quanto mais texto esperamos que quebre a linha corretamente.
-              Vamos botar mais texto para que o troço continue crescendo mais ainda.
-              Vamos botar mais texto para que o troço continue crescendo mais ainda.
-            </p>
-            <p>
-              Vamos botar mais texto para que o troço continue crescendo mais ainda.
-            </p>
-          </Container>
+        <Segment textAlign='center' style={{width: '100%'}}>
+          <Header as='h3'>{title}</Header>
+          { Content }
         </Segment>
       )}
         <Icon

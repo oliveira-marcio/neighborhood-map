@@ -148,6 +148,12 @@ export function getAllPOIs(){
   })
 }
 
+export function getPOIDetails(id){
+  return new Promise((res) => {
+    setTimeout(() => res(pois.find(p => p.id === id)), 3000);
+  })
+}
+
 // TODO: Na versão final, deverá substituir `getAllPOIs`
 export function getPizzaPOIs(){
   const url = FOURSQUARE_BASE_API_URL + FOURSQUARE_CLIENT_ID +
