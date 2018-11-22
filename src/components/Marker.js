@@ -14,8 +14,8 @@ class Marker extends Component {
 
   componentDidUpdate(prevProps){
     const {selectedMarker, id} = this.props;
-    if((prevProps.selectedMarker !== selectedMarker) && (selectedMarker !== id)){
-      this.setState({ displayInfoWindow: false});
+    if(prevProps.selectedMarker !== selectedMarker){
+      this.setState({ displayInfoWindow: selectedMarker === id});
     }
   }
 
@@ -31,13 +31,12 @@ class Marker extends Component {
         justifyContent: 'flex-end',
         position: 'absolute',
         zIndex: displayInfoWindow ? '1' : '0',
-        cursor: "default",
         transform: 'translate(-50%, -100%)',
         width: '80vw',
         maxWidth: '600px'
       }}>
       {displayInfoWindow && (
-        <Segment>
+        <Segment style={{width: '100%'}}>
           <Header as='h3' textAlign='center'>{text}</Header>
           <Container text textAlign='justified'>
             <p>
@@ -53,8 +52,9 @@ class Marker extends Component {
       )}
         <Icon
           name='map marker alternate'
-          size={displayInfoWindow || $hover ? ("huge") : ("large")}
-          color={displayInfoWindow|| $hover ? ("teal") : ("red")}
+          style={{ cursor: 'default'}}
+          size={displayInfoWindow || $hover ? 'huge' : 'large'}
+          color={displayInfoWindow|| $hover ? 'teal' : 'red'}
           onClick={() => this.toggleInfoWindow()}
         />
       </div>
