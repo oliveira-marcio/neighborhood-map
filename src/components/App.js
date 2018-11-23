@@ -27,8 +27,16 @@ class App extends PureComponent {
     const {selectedPOI, pois, bounds, size} = this.state;
 
     if(selectedPOI !== childProps.id){
-      if(!pois.find(p => p.id === childProps.id).location.hasOwnProperty("address")){
+      const poi = {...pois.find(p => p.id === childProps.id)}
+      if(!poi.location.hasOwnProperty("address")){
         console.log('fetching')
+        if(poi.hasOwnProperty('errorType')){
+          delete poi.errorType
+          delete poi.errorDetail
+          this.setState({
+            pois: [...pois.filter(p => p.id !== childProps.id), poi]
+          })
+        }
         FoursquareAPI.getPOIDetails(childProps.id)
         .then(poi => {
           this.setState({

@@ -139,6 +139,15 @@ const pois = [
     categories: [{
       name: "Shopping Center"
     }]
+  },
+  {
+    id: "abcd",
+    name: "POI com erro",
+    location: {
+      lat: -22.850235,
+      lng: -43.316325,
+    },
+    categories: []
   }
 ];
 
@@ -159,7 +168,14 @@ export function getAllPOIs(){
 
 export function getPOIDetails(id){
   return new Promise((res) => {
-    setTimeout(() => res(pois.find(p => p.id === id)), 500);
+    setTimeout(() => {
+      const currentPoi = {...pois.find(p => p.id === id)}
+      if(!currentPoi.location.hasOwnProperty("address")){
+        currentPoi.errorType = 'xpto';
+        currentPoi.errorDetail = 'abcd';
+      }
+      res(currentPoi)
+    }, 1000);
   })
 }
 

@@ -20,54 +20,60 @@ class Marker extends Component {
     }
   }
 
-  // TODO: Colocar tela de erro em caso de erro no fetching
   render(){
     const {title, $hover, selectedPOI, pois} = this.props;
     const {displayInfoWindow} = this.state;
     const poi = pois.find(p => p.id === selectedPOI)
 
-    const Content = selectedPOI && poi.location.hasOwnProperty("address") ? (
-      <Container text fluid textAlign='justified'>
-        <Segment raised compact>
-        <Image
-          centered
-          src={`${poi.bestPhoto
-                ? poi.bestPhoto.prefix + '300x300' + poi.bestPhoto.suffix
-                : '/no-image.png'}`}
-          onClick={() => alert('ok')}
-        />
-        </Segment>
-        <Segment vertical>
-          <Header as="h5">Address</Header>
-          <Segment basic size='small' style={{whiteSpace: 'pre-line'}}>
-          {
-            poi.location.address + '\n' +
-            poi.location.city + ' – ' +  poi.location.state + ' – ' +  poi.location.country + '\n' +
-            poi.location.postalCode
-          }
+    const Content = selectedPOI && (
+      poi.location.hasOwnProperty("address") ? (
+        <Container text fluid textAlign='justified'>
+          <Segment raised compact>
+          <Image
+            centered
+            src={`${poi.bestPhoto
+                  ? poi.bestPhoto.prefix + '300x300' + poi.bestPhoto.suffix
+                  : '/no-image.png'}`}
+            onClick={() => alert('ok')}
+          />
           </Segment>
-        </Segment>
-        {(poi.hours || poi.contact || poi.rating || poi.categories.length || poi.url) && (
           <Segment vertical>
-            <Header as="h5">More</Header>
-            <ul>
-              {poi.hours && (<li><strong>Status: </strong>{poi.hours.status + '\n'}</li>)}
-              {poi.contact && (<li><strong>Phone: </strong>{formatPhone(poi.contact.phone) + '\n'}</li>)}
-              {poi.rating && (<li><strong>Rating: </strong>{poi.rating + '\n'}</li>)}
-              {poi.categories.length && (<li><strong>Category: </strong>{poi.categories[0].name + '\n'}</li>)}
-              {poi.url && (<li><strong><a href={poi.url} target='blank'>Website</a></strong></li>)}
-            </ul>
+            <Header as="h5">Address</Header>
+            <Segment basic size='small' style={{whiteSpace: 'pre-line'}}>
+            {
+              poi.location.address + '\n' +
+              poi.location.city + ' – ' +  poi.location.state + ' – ' +  poi.location.country + '\n' +
+              poi.location.postalCode
+            }
+            </Segment>
           </Segment>
-        )}
-      </Container>
-    ) : (
-      <Container text fluid>
-        <Icon.Group size='huge'>
-          <Icon loading size='big' name='circle notch' />
-          <Icon name='foursquare' />
-        </Icon.Group>
-        <p>Loading data...</p>
-      </Container>
+          {(poi.hours || poi.contact || poi.rating || poi.categories.length || poi.url) && (
+            <Segment vertical>
+              <Header as="h5">More</Header>
+              <ul>
+                {poi.hours && (<li><strong>Status: </strong>{poi.hours.status + '\n'}</li>)}
+                {poi.contact && (<li><strong>Phone: </strong>{formatPhone(poi.contact.phone) + '\n'}</li>)}
+                {poi.rating && (<li><strong>Rating: </strong>{poi.rating + '\n'}</li>)}
+                {poi.categories.length && (<li><strong>Category: </strong>{poi.categories[0].name + '\n'}</li>)}
+                {poi.url && (<li><strong><a href={poi.url} target='blank'>Website</a></strong></li>)}
+              </ul>
+            </Segment>
+          )}
+        </Container>
+      ) : poi.hasOwnProperty("errorType") ? (
+        <Container text fluid>
+          <Icon name='grav' size='massive' />
+          <Segment basic>Error loading data. Try again later...</Segment>
+        </Container>
+      ) : (
+        <Container text fluid>
+          <Icon.Group size='huge'>
+            <Icon loading size='big' name='circle notch' />
+            <Icon name='foursquare' />
+          </Icon.Group>
+          <Segment basic>Loading data...</Segment>
+        </Container>
+      )
     )
 
     return (
