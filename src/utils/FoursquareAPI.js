@@ -99,7 +99,7 @@ const pois = [
     canonicalUrl: "https://foursquare.com/v/p%C3%A1tio-carioca/51e3d9f2498eaecbdfc906e8",
     url: "http://lopes.com.br",
     contact: {
-      phone: "+551130671118"
+      phone: "+55219841257"
     },
     likes: {
       count: 7
@@ -159,7 +159,7 @@ export function getAllPOIs(){
 
 export function getPOIDetails(id){
   return new Promise((res) => {
-    setTimeout(() => res(pois.find(p => p.id === id)), 3000);
+    setTimeout(() => res(pois.find(p => p.id === id)), 500);
   })
 }
 

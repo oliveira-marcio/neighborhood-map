@@ -38,7 +38,8 @@ class App extends PureComponent {
       }
     }
 
-    const latOffset = 200 * (bounds.nw.lat - bounds.se.lat) / size.height
+    const pixelsOffset = window.innerWidth <= Responsive.onlyMobile.maxWidth ? 250 : 350
+    const latOffset = pixelsOffset * (bounds.nw.lat - bounds.se.lat) / size.height
 
     this.setState({
       selectedPOI: selectedPOI === childProps.id ? "" : childProps.id,
