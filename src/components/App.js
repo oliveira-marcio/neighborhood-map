@@ -14,7 +14,7 @@ class App extends Component {
     },
     zoom: 15,
     sideBarVisible: false,
-    selectedMarker: {id: ""},
+    selectedPOI: "",
     filter: "",
     pois: [],
     sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
@@ -25,18 +25,27 @@ class App extends Component {
   handleSidebarHide = () => this.setState({ sideBarVisible: false })
   onChildClick = (key, childProps) => {
     // TODO: Implementar clique do menu e/ou seleção do mesmo quando Marker for clicado
-    const {selectedMarker} = this.state;
+    const {selectedPOI, pois} = this.state;
+
+    if(selectedPOI !== childProps.id){
+      if(!pois.find(p => p.id === childProps.id).location.hasOwnProperty("address")){
+        console.log('fetching')
+        FoursquareAPI.getPOIDetails(childProps.id)
+        .then(poi => {
+          this.setState({
+            pois: [...pois.filter(p => p.id !== childProps.id), poi]
+          })
+        });
+      }
+    }
+
     this.setState({
-      selectedMarker: {id: selectedMarker.id === childProps.id ? "" : childProps.id},
+      selectedPOI: selectedPOI === childProps.id ? "" : childProps.id,
       center: {
         lat: childProps.lat,
         lng: childProps.lng
       }
     });
-    FoursquareAPI.getPOIDetails(childProps.id)
-    .then(selectedMarker => this.setState({selectedMarker}))
-    // TODO: Idéia, fazer caching dos dados baixado no "pois" para evitar re-fetch
-    // TODO: Tratar vários fetchs simultâneos que setam o estado. Idéia: shouldComponentUpdate
   }
 
   toggleSideBarWidth = () => {
@@ -63,7 +72,7 @@ class App extends Component {
   }
 
   render() {
-    const { sideBarVisible, selectedMarker, pois, sideBarWidth, filter } = this.state;
+    const { sideBarVisible, selectedPOI, pois, sideBarWidth, filter } = this.state;
     const filteredPOIs =  pois.filter(p =>
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
@@ -76,7 +85,8 @@ class App extends Component {
         lat={poi.location.lat}
         lng={poi.location.lng}
         title={poi.name}
-        selectedMarker={selectedMarker}
+        selectedPOI={selectedPOI}
+        pois={pois}
       />
     ))
 

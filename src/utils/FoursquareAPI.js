@@ -144,7 +144,16 @@ const pois = [
 
 export function getAllPOIs(){
   return new Promise((res) => {
-    setTimeout(() => res(pois), 500);
+    const initialPois = [];
+    pois.map(p => initialPois.push({
+      id: p.id,
+      name: p.name,
+      location: {
+        lat: p.location.lat,
+        lng: p.location.lng
+      }
+    }));
+    setTimeout(() => res(initialPois), 500);
   })
 }
 

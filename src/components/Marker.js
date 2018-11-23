@@ -13,17 +13,17 @@ class Marker extends Component {
   };
 
   componentDidUpdate(prevProps){
-    const {selectedMarker, id} = this.props;
-    if(prevProps.selectedMarker.id !== selectedMarker.id){
-      this.setState({ displayInfoWindow: selectedMarker.id === id});
+    const {selectedPOI, id} = this.props;
+    if(prevProps.selectedPOI !== selectedPOI){
+      this.setState({ displayInfoWindow: selectedPOI === id});
     }
   }
 
   // TODO: Colocar tela de erro em caso de erro no fetching
   render(){
-    const {title, $hover, selectedMarker} = this.props;
+    const {title, $hover, selectedPOI, pois} = this.props;
     const {displayInfoWindow} = this.state;
-    const Content = selectedMarker.hasOwnProperty("name") ? (
+    const Content = selectedPOI && pois.find(p => p.id === selectedPOI).location.hasOwnProperty("address") ? (
       <Container text fluid textAlign='justified'>
         <p>
           Texto Grande pra caramba que ocupe espaço à beça e quanto mais texto esperamos que quebre a linha corretamente.
