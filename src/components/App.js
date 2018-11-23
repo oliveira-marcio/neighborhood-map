@@ -18,6 +18,7 @@ class App extends PureComponent {
     sideBarVisible: false,
     selectedPOI: "",
     filter: "",
+    loadingPOIs: true,
     pois: [],
     sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
   };
@@ -80,17 +81,20 @@ class App extends PureComponent {
 //      FoursquareAPI.testAPI()
 //      FoursquareAPI.getPizzaPOIs()
       FoursquareAPI.getAllPOIs()
-      .then(pois => this.setState({pois}))
+      .then(pois => this.setState({pois, loadingPOIs: false}))
       // TODO: Colocar tela de loading enquanto POI's são carregados
       // TODO: Colocar tela de erro
   }
 
   render() {
-    const { sideBarVisible, selectedPOI, pois, sideBarWidth, filter } = this.state;
+    const { sideBarVisible, selectedPOI, pois, sideBarWidth, filter, loadingPOIs } = this.state;
+/*
     const filteredPOIs =  pois.filter(p =>
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
     ).sort(sortBy('name'));
+*/
+    const filteredPOIs = []
 
     const Markers = filteredPOIs.map(poi => (
       <Marker
@@ -104,7 +108,17 @@ class App extends PureComponent {
       />
     ))
 
-    const MenuPOIs = filteredPOIs.map(poi => (
+    const MenuPOIs = loadingPOIs ? (
+      <Menu.Item>
+        <Icon loading name='circle notch' />
+        Loading...
+      </Menu.Item>
+    ) : !filteredPOIs.length ? (
+      <Menu.Item>
+        <Icon name='grav' />
+        Places unavailable. Try again later...
+      </Menu.Item>
+    ) : filteredPOIs.map(poi => (
       <Menu.Item as='a'
         key={poi.id}
         active={poi.id === selectedPOI}

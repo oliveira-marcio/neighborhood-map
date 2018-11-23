@@ -162,7 +162,7 @@ export function getAllPOIs(){
         lng: p.location.lng
       }
     }));
-    setTimeout(() => res(initialPois), 500);
+    setTimeout(() => res(initialPois), 4000);
   })
 }
 
