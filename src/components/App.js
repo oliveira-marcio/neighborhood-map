@@ -24,7 +24,6 @@ class App extends PureComponent {
 
   onChange = ({bounds, size}) => this.setState({bounds, size})
   onChildClick = (key, childProps) => {
-    // TODO: Implementar clique do menu e/ou seleção do mesmo quando Marker for clicado
     const {selectedPOI, pois, bounds, size} = this.state;
 
     if(selectedPOI !== childProps.id){
@@ -97,7 +96,15 @@ class App extends PureComponent {
     ))
 
     const MenuPOIs = filteredPOIs.map(poi => (
-      <Menu.Item as='a' key={poi.id}>
+      <Menu.Item as='a'
+        key={poi.id}
+        active={poi.id === selectedPOI}
+        onClick={() => this.onChildClick(null, {
+          id: poi.id,
+          lat: poi.location.lat,
+          lng: poi.location.lng
+        })}
+      >
         <Icon name='map marker alternate' />
         {poi.name}
       </Menu.Item>
