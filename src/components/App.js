@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import GoogleMapReact from 'google-map-react';
 import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive} from 'semantic-ui-react';
 import Marker from './Marker'
@@ -6,13 +6,15 @@ import * as FoursquareAPI from '../utils/FoursquareAPI'
 import sortBy from 'sort-by'
 import {removeCaseAndAccents} from '../utils/helpers'
 
-class App extends Component {
+class App extends PureComponent {
   state = {
     center: {
       lat: -22.84406,
       lng: -43.317548
     },
     zoom: 15,
+    bounds: {},
+    size: {},
     sideBarVisible: false,
     selectedPOI: "",
     filter: "",
@@ -20,12 +22,10 @@ class App extends Component {
     sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
   };
 
-  handleHideClick = () => this.setState({ sideBarVisible: false })
-  handleShowClick = () => this.setState({ sideBarVisible: true })
-  handleSidebarHide = () => this.setState({ sideBarVisible: false })
+  onChange = ({bounds, size}) => this.setState({bounds, size})
   onChildClick = (key, childProps) => {
     // TODO: Implementar clique do menu e/ou seleção do mesmo quando Marker for clicado
-    const {selectedPOI, pois} = this.state;
+    const {selectedPOI, pois, bounds, size} = this.state;
 
     if(selectedPOI !== childProps.id){
       if(!pois.find(p => p.id === childProps.id).location.hasOwnProperty("address")){
@@ -39,14 +39,20 @@ class App extends Component {
       }
     }
 
+    const latOffset = 200 * (bounds.nw.lat - bounds.se.lat) / size.height
+
     this.setState({
       selectedPOI: selectedPOI === childProps.id ? "" : childProps.id,
       center: {
-        lat: childProps.lat,
+        lat: childProps.lat + latOffset,
         lng: childProps.lng
       }
     });
   }
+
+  handleHideClick = () => this.setState({ sideBarVisible: false })
+  handleShowClick = () => this.setState({ sideBarVisible: true })
+  handleSidebarHide = () => this.setState({ sideBarVisible: false })
 
   toggleSideBarWidth = () => {
     const {sideBarWidth} = this.state
@@ -132,6 +138,7 @@ class App extends Component {
                 center={this.state.center}
                 zoom={this.state.zoom}
                 onChildClick={this.onChildClick}
+                onChange={this.onChange}
               >
                 { Markers }
               </GoogleMapReact>
