@@ -1,10 +1,21 @@
 import React, { PureComponent } from 'react';
 import GoogleMapReact from 'google-map-react';
-import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive, Modal} from 'semantic-ui-react';
-import Marker from './Marker'
-import * as FoursquareAPI from '../utils/FoursquareAPI'
-import sortBy from 'sort-by'
-import {removeCaseAndAccents} from '../utils/helpers'
+import {
+  Container,
+  Segment,
+  Header,
+  Icon,
+  Sidebar,
+  Menu,
+  Input,
+  Responsive,
+  Modal
+} from 'semantic-ui-react';
+import Marker from './Marker';
+import * as FoursquareAPI from '../utils/fakeFoursquareAPI';
+import sortBy from 'sort-by';
+import {removeCaseAndAccents} from '../utils/helpers';
+import '../index.css';
 
 class App extends PureComponent {
   state = {
@@ -20,23 +31,36 @@ class App extends PureComponent {
     filter: "",
     loadingPOIs: true,
     pois: [],
-    sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ? 'wide' : 'thin'
+    sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ?
+      'wide' : 'thin'
   };
 
-  onChange = ({bounds, size}) => this.setState({bounds, size})
+  /**
+   * É necessário guardar os limites e tamanho do mapa sempre que ele muda
+   * (zoom ou drag) para calcular a centralização correta de um marker clicado
+   */
+  onChange = ({bounds, size}) => this.setState({bounds, size});
+
+  /**
+   * Evento de clique de um Marker
+   * - Centraliza o mapa no poi selecionado com um offset vertical para ter
+   * mais espaço para o InfoWindow
+   * - Busca detalhes do Marker na API e salva no state. Se o Marker for clicado
+   * novamente, serão utilizados os dados do state. Apenas Markers que não
+   * receberam dados com sucesso da API fazem a consulta novamente na mesma.
+   */
   onChildClick = (key, childProps) => {
     const {selectedPOI, pois, bounds, size} = this.state;
 
     if(selectedPOI !== childProps.id){
-      const poi = {...pois.find(p => p.id === childProps.id)}
-      if(!poi.location.hasOwnProperty("address")){
-        console.log('fetching')
-        if(poi.hasOwnProperty('errorType')){
-          delete poi.errorType
-          delete poi.errorDetail
+      const poi = {...pois.find(p => p.id === childProps.id)};
+      if(!poi.location.hasOwnProperty("address")){ // Marker ainda não tem dados
+        if(poi.hasOwnProperty('errorType')){ // Marker não obteve dados da API
+          delete poi.errorType;
+          delete poi.errorDetail;
           this.setState({
             pois: [...pois.filter(p => p.id !== childProps.id), poi]
-          })
+          });
         }
         FoursquareAPI.getPOIDetails(childProps.id)
         .then(poi => {
@@ -47,8 +71,11 @@ class App extends PureComponent {
       }
     }
 
-    const pixelsOffset = window.innerWidth <= Responsive.onlyMobile.maxWidth ? 250 : 350
-    const latOffset = pixelsOffset * (bounds.nw.lat - bounds.se.lat) / size.height
+    // Cálculo do offset vertical de um Marker para ser cetralizado
+    const pixelsOffset =
+      window.innerWidth <= Responsive.onlyMobile.maxWidth ? 250 : 300;
+    const latOffset =
+      pixelsOffset * (bounds.nw.lat - bounds.se.lat) / size.height;
 
     this.setState({
       selectedPOI: selectedPOI === childProps.id ? "" : childProps.id,
@@ -59,34 +86,55 @@ class App extends PureComponent {
     });
   }
 
-  handleHideClick = () => this.setState({ sideBarVisible: false })
-  handleShowClick = () => this.setState({ sideBarVisible: true })
-  handleSidebarHide = () => this.setState({ sideBarVisible: false })
+  /**
+   * Métodos de controle da exibição da SideBar
+   */
+  handleHideClick = () => this.setState({ sideBarVisible: false });
+  handleShowClick = () => this.setState({ sideBarVisible: true });
+  handleSidebarHide = () => this.setState({ sideBarVisible: false });
 
+  /**
+   * Método para alternar a largura da SideBar conforme o tamanho da viewport
+   */
   toggleSideBarWidth = () => {
-    const {sideBarWidth} = this.state
-    if(sideBarWidth === 'wide' && window.innerWidth <= Responsive.onlyMobile.maxWidth){
-      this.setState({sideBarWidth: 'thin'})
+    const {sideBarWidth} = this.state;
+    if(sideBarWidth === 'wide' &&
+        window.innerWidth <= Responsive.onlyMobile.maxWidth){
+      this.setState({sideBarWidth: 'thin'});
     }
-    if(sideBarWidth === 'thin' && window.innerWidth > Responsive.onlyMobile.maxWidth){
-      this.setState({sideBarWidth: 'wide'})
+    if(sideBarWidth === 'thin' &&
+        window.innerWidth > Responsive.onlyMobile.maxWidth){
+      this.setState({sideBarWidth: 'wide'});
     }
-  }
+  };
 
+  /**
+   * Método para setar o filtro de POI's de acordo com o texto digitado
+   */
   setFilter = (e) => {
     this.setState({filter: e.target.value});
-  }
+  };
 
+  // Todos os Markers são buscados aqui. Em caso de erro, é necessário
+  // recarregar o app, pois não há o que fazer sem os Markers... ;-)
   componentDidMount(){
 //      FoursquareAPI.testAPI()
 //      FoursquareAPI.getPizzaPOIs()
       FoursquareAPI.getAllPOIs()
-      .then(pois => this.setState({pois, loadingPOIs: false}))
-  }
+      .then(pois => this.setState({pois, loadingPOIs: false}));
+  };
 
   render() {
-    const { sideBarVisible, selectedPOI, pois, sideBarWidth, filter, loadingPOIs } = this.state;
+    const {
+      sideBarVisible,
+      selectedPOI,
+      pois,
+      sideBarWidth,
+      filter,
+      loadingPOIs
+    } = this.state;
 
+    // POI's filtrados e ordenados por nome
     const filteredPOIs =  pois.filter(p =>
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
@@ -104,19 +152,24 @@ class App extends PureComponent {
         selectedPOI={selectedPOI}
         pois={pois}
       />
-    ))
+    ));
 
-    const MenuPOIs = loadingPOIs ? (
+    // Itens do menu da SideBar. Possui 3 status de acordo com a disponibilidade
+    // dos Markers (sucesso em obtê-los da API):
+    // - NORMAL - Exibe todos os POI's
+    // - LOADING - Exibe um status de loading
+    // - ERRO - Exibe um status de erro
+    const MenuPOIs = loadingPOIs ? ( // LOADING
       <Menu.Item>
         <Icon loading name='circle notch' />
         Loading...
       </Menu.Item>
-    ) : !filteredPOIs.length ? (
+    ) : !filteredPOIs.length ? ( // ERRO
       <Menu.Item>
         <Icon name='grav' />
         Places unavailable. Try again later...
       </Menu.Item>
-    ) : filteredPOIs.map(poi => (
+    ) : filteredPOIs.map(poi => ( // NORMAL
       <Menu.Item as='a'
         key={poi.id}
         active={poi.id === selectedPOI}
@@ -129,14 +182,20 @@ class App extends PureComponent {
         <Icon name='map marker alternate' />
         {poi.name}
       </Menu.Item>
-    ))
+    ));
 
-    const ModalContent = !(loadingPOIs || filteredPOIs.length) ? (
+    // Conteúdo do Modal inicial. Não é possível desabilitá-lo.
+    // Possui 3 status de acordo com a disponibilidade dos Markers (sucesso em
+    // obtê-los da API):
+    // - LOADING - Exibe um status de loading
+    // - ERRO - Exibe um status de erro
+    // - NORMAL - Desaparece após obter os POI's
+    const ModalContent = !(loadingPOIs || filteredPOIs.length) ? ( // ERRO
       <Container text fluid textAlign='center'>
         <Icon name='grav' size='massive' />
         <Header as='h3' inverted>Error loading data. Try again later...</Header>
       </Container>
-    ) : (
+    ) : ( // LOADING
       <Container text fluid textAlign='center'>
         <Icon.Group size='huge'>
           <Icon loading size='big' name='circle notch' />
@@ -144,7 +203,7 @@ class App extends PureComponent {
         </Icon.Group>
         <Header as='h3' inverted>Loading data...</Header>
       </Container>
-    )
+    );
 
     return (
       <Container fluid>
@@ -163,19 +222,24 @@ class App extends PureComponent {
             <Menu.Item header>
               Locations
             </Menu.Item>
-            <Input fluid icon={<Icon name='filter' inverted bordered color='teal' />} placeholder='Filter...' onChange={this.setFilter}/>
+            <Input
+              fluid
+              icon={<Icon name='filter' inverted bordered color='teal' />}
+              placeholder='Filter...'
+              onChange={this.setFilter}
+              />
             <Responsive onUpdate={() => this.toggleSideBarWidth()} />
             { MenuPOIs }
           </Sidebar>
 
-          <Sidebar.Pusher style={{height: '100vh'}}>
-            <Segment basic vertical inverted style={{height: '60px'}}>
+          <Sidebar.Pusher className='mainSideBar'>
+            <Segment basic vertical inverted className='mainHeader'>
               <Header as='h1' inverted color='grey'>
                 <Icon name='bars' onClick={this.handleShowClick}/>
                 Neighborhood Map
               </Header>
             </Segment>
-            <div style={{ position: 'absolute', top: '60px', right: '0', bottom: '0',  left: '0' }}>
+            <div className='appMap'>
               <GoogleMapReact
                 bootstrapURLKeys={{ key: process.env.REACT_APP_MAPS_API_KEY }}
                 center={this.state.center}
@@ -186,7 +250,11 @@ class App extends PureComponent {
                 { Markers }
               </GoogleMapReact>
             </div>
-            <Modal open={loadingPOIs || !filteredPOIs.length} basic size='small'>
+            <Modal
+              open={loadingPOIs || !filteredPOIs.length}
+              basic
+              size='small'
+              >
               <Modal.Content>
                 { ModalContent }
               </Modal.Content>
@@ -195,7 +263,7 @@ class App extends PureComponent {
         </Sidebar.Pushable>
       </Container>
     );
-  }
-}
+  };
+};
 
 export default App;

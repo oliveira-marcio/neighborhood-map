@@ -1,0 +1,43 @@
+.mainSideBar {
+  height: 100vh;
+}
+
+.mainHeader {
+  height: 60px;
+}
+
+.appMap {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.modalContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  transform: translate(-50%, -100%);
+  min-width: 300px;
+  max-width: 600px;
+  max-height: 70vh;
+}
+
+.elevated {
+  z-index: 1;
+}
+
+.modalHeader {
+  width: 100%;
+}
+
+.modalAddress {
+  white-space: pre-line;
+}
+
+.markerCursor {
+  cursor: default;
+}
