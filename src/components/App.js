@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import GoogleMapReact from 'google-map-react';
-import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive} from 'semantic-ui-react';
+import {Container, Segment, Header, Icon, Sidebar, Menu, Input, Responsive, Modal} from 'semantic-ui-react';
 import Marker from './Marker'
 import * as FoursquareAPI from '../utils/FoursquareAPI'
 import sortBy from 'sort-by'
@@ -82,19 +82,17 @@ class App extends PureComponent {
 //      FoursquareAPI.getPizzaPOIs()
       FoursquareAPI.getAllPOIs()
       .then(pois => this.setState({pois, loadingPOIs: false}))
-      // TODO: Colocar tela de loading enquanto POI's são carregados
-      // TODO: Colocar tela de erro
   }
 
   render() {
     const { sideBarVisible, selectedPOI, pois, sideBarWidth, filter, loadingPOIs } = this.state;
-/*
+
     const filteredPOIs =  pois.filter(p =>
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
     ).sort(sortBy('name'));
-*/
-    const filteredPOIs = []
+
+//    const filteredPOIs = []
 
     const Markers = filteredPOIs.map(poi => (
       <Marker
@@ -132,6 +130,21 @@ class App extends PureComponent {
         {poi.name}
       </Menu.Item>
     ))
+
+    const ModalContent = !(loadingPOIs || filteredPOIs.length) ? (
+      <Container text fluid textAlign='center'>
+        <Icon name='grav' size='massive' />
+        <Header as='h3' inverted>Error loading data. Try again later...</Header>
+      </Container>
+    ) : (
+      <Container text fluid textAlign='center'>
+        <Icon.Group size='huge'>
+          <Icon loading size='big' name='circle notch' />
+          <Icon name='foursquare' />
+        </Icon.Group>
+        <Header as='h3' inverted>Loading data...</Header>
+      </Container>
+    )
 
     return (
       <Container fluid>
@@ -173,6 +186,11 @@ class App extends PureComponent {
                 { Markers }
               </GoogleMapReact>
             </div>
+            <Modal open={loadingPOIs || !filteredPOIs.length} basic size='small'>
+              <Modal.Content>
+                { ModalContent }
+              </Modal.Content>
+            </Modal>
           </Sidebar.Pusher>
         </Sidebar.Pushable>
       </Container>
