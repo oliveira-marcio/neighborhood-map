@@ -52,11 +52,20 @@ class Marker extends Component {
           </Segment>
           <Address {...poi} />
           <ExtraInfo {...poi} />
+          <Segment basic vertical textAlign='center'>
+            Credits to &nbsp;
+            <a href='https://foursquare.com/' target='blank'>
+              Foursquare ®
+            </a>
+          </Segment>
         </Container>
       ) : poi.hasOwnProperty("errorType") ? ( // conteúdo ERRO
         <Container text fluid>
           <Icon name='grav' size='massive' />
-          <Segment basic>Error loading data. Try again later...</Segment>
+          <Segment basic>
+            <p>Error loading data.</p>
+            <p>Check your internet connection or try again later...</p>
+          </Segment>
         </Container>
       ) : ( // conteúdo LOADING
         <Container text fluid>

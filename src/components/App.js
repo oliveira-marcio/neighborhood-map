@@ -69,7 +69,21 @@ class App extends PureComponent {
               ...pois.filter(p => p.id !== childProps.id),
               {...poi, ...detailedPoi}
             ]
-          })
+          });
+        })
+        .catch(error => {
+          console.log(error);
+          const connError = {
+            errorType: "connection_error",
+            errorDetail: error
+          };
+
+          this.setState({
+            pois: [
+              ...pois.filter(p => p.id !== childProps.id),
+              {...poi, ...connError}
+            ]
+          });
         });
       }
     }
@@ -122,8 +136,12 @@ class App extends PureComponent {
   // recarregar o app, pois não há o que fazer sem os Markers... ;-)
   componentDidMount(){
       FoursquareAPI.getAllPOIs()
-      .then(pois => this.setState({pois, loadingPOIs: false}));
-  };
+      .then(pois => this.setState({pois, loadingPOIs: false}))
+      .catch(error => {
+        console.log(error);
+        this.setState({pois: [], loadingPOIs: false})
+      });
+};
 
   render() {
     const {
@@ -192,7 +210,10 @@ class App extends PureComponent {
     const ModalContent = !(loadingPOIs || filteredPOIs.length) ? ( // ERRO
       <Container text fluid textAlign='center'>
         <Icon name='grav' size='massive' />
-        <Header as='h3' inverted>Error loading data. Try again later...</Header>
+        <Header as='h3' inverted>
+          <p>Error loading data.</p>
+          <p>Check your internet connection or try again later...</p>
+        </Header>
       </Container>
     ) : ( // LOADING
       <Container text fluid textAlign='center'>
