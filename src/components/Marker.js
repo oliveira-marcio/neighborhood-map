@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Container, Segment, Header, Icon, Image} from 'semantic-ui-react';
-import {formatPhone} from '../utils/helpers';
+import Address from './Address';
+import ExtraInfo from './ExtraInfo';
 import '../index.css';
 
 class Marker extends Component {
@@ -32,12 +33,12 @@ class Marker extends Component {
 
     // Existem 3 possíveis conteúdos para o InfoWindow de acordo com certos
     // atributos existentes no objeto 'poi':
-    // - NORMAL - quando os dados já estão disponíveis (Ex: poi.location.address)
+    // - NORMAL - quando os dados já estão disponíveis (Ex: poi.createdAt)
     // - ERRO - quando o fetch da API da falha (Ex: poi.errorType)
     // - LOADING - quando os dados ainda estão sendo buscados (Ex: quando nenhum
     // dos atributos acima está presente)
     const Content = selectedPOI && (
-      poi.location.hasOwnProperty("address") ? ( // conteúdo NORMAL
+      poi.hasOwnProperty("createdAt") ? ( // conteúdo NORMAL
         <Container text fluid textAlign='justified'>
           <Segment raised compact>
           <Image
@@ -49,56 +50,8 @@ class Marker extends Component {
             title={title}
           />
           </Segment>
-          <Segment vertical>
-            <Header as="h5">Address</Header>
-            <Segment basic size='small' className='modalAddress'>
-            {
-              poi.location.address + '\n' +
-              poi.location.city + ' – ' +
-              poi.location.state + ' – ' +
-              poi.location.country + '\n' +
-              poi.location.postalCode
-            }
-            </Segment>
-          </Segment>
-          {(poi.hours ||
-            poi.contact ||
-            poi.rating ||
-            poi.categories.length ||
-            poi.url) && ( // Seção de conteúdo extra (apenas se houverem dados)
-            <Segment vertical>
-              <Header as="h5">More</Header>
-              <ul>
-                {poi.hours && (
-                  <li>
-                    <strong>Status: </strong>{poi.hours.status + '\n'}
-                  </li>
-                )}
-                {poi.contact && (
-                  <li>
-                    <strong>Phone: </strong>
-                    {formatPhone(poi.contact.phone) + '\n'}
-                  </li>)
-                }
-                {poi.rating && (
-                  <li>
-                    <strong>Rating: </strong>{poi.rating + '\n'}
-                  </li>)
-                }
-                {poi.categories.length && (
-                  <li>
-                    <strong>Category: </strong>{poi.categories[0].name + '\n'}
-                  </li>
-                )}
-                {poi.url && (
-                  <li>
-                    <strong>
-                      <a href={poi.url} target='blank'>Website</a>
-                    </strong>
-                  </li>)}
-              </ul>
-            </Segment>
-          )}
+          <Address {...poi} />
+          <ExtraInfo {...poi} />
         </Container>
       ) : poi.hasOwnProperty("errorType") ? ( // conteúdo ERRO
         <Container text fluid>
@@ -128,7 +81,7 @@ class Marker extends Component {
         </Segment>
       )}
         <Icon
-          name='map marker alternate'
+          name='food'
           className='markerCursor'
           size={displayInfoWindow || $hover ? 'huge' : 'large'}
           color={displayInfoWindow|| $hover ? 'teal' : 'red'}

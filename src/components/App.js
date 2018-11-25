@@ -12,7 +12,7 @@ import {
   Modal
 } from 'semantic-ui-react';
 import Marker from './Marker';
-import * as FoursquareAPI from '../utils/fakeFoursquareAPI';
+import * as FoursquareAPI from '../utils/FoursquareAPI';
 import sortBy from 'sort-by';
 import {removeCaseAndAccents} from '../utils/helpers';
 import '../index.css';
@@ -54,7 +54,7 @@ class App extends PureComponent {
 
     if(selectedPOI !== childProps.id){
       const poi = {...pois.find(p => p.id === childProps.id)};
-      if(!poi.location.hasOwnProperty("address")){ // Marker ainda não tem dados
+      if(!poi.hasOwnProperty("createdAt")){ // Marker ainda não tem dados
         if(poi.hasOwnProperty('errorType')){ // Marker não obteve dados da API
           delete poi.errorType;
           delete poi.errorDetail;
@@ -63,9 +63,12 @@ class App extends PureComponent {
           });
         }
         FoursquareAPI.getPOIDetails(childProps.id)
-        .then(poi => {
+        .then(detailedPoi => {
           this.setState({
-            pois: [...pois.filter(p => p.id !== childProps.id), poi]
+            pois: [
+              ...pois.filter(p => p.id !== childProps.id),
+              {...poi, ...detailedPoi}
+            ]
           })
         });
       }
@@ -118,8 +121,6 @@ class App extends PureComponent {
   // Todos os Markers são buscados aqui. Em caso de erro, é necessário
   // recarregar o app, pois não há o que fazer sem os Markers... ;-)
   componentDidMount(){
-//      FoursquareAPI.testAPI()
-//      FoursquareAPI.getPizzaPOIs()
       FoursquareAPI.getAllPOIs()
       .then(pois => this.setState({pois, loadingPOIs: false}));
   };
@@ -139,8 +140,6 @@ class App extends PureComponent {
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
     ).sort(sortBy('name'));
-
-//    const filteredPOIs = []
 
     const Markers = filteredPOIs.map(poi => (
       <Marker
@@ -179,7 +178,7 @@ class App extends PureComponent {
           lng: poi.location.lng
         })}
       >
-        <Icon name='map marker alternate' />
+        <Icon name='food' />
         {poi.name}
       </Menu.Item>
     ));
@@ -236,7 +235,7 @@ class App extends PureComponent {
             <Segment basic vertical inverted className='mainHeader'>
               <Header as='h1' inverted color='grey'>
                 <Icon name='bars' onClick={this.handleShowClick}/>
-                Neighborhood Map
+                Find My Pizza
               </Header>
             </Segment>
             <div className='appMap'>
