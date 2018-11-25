@@ -6,11 +6,10 @@ import {
   Header,
   Icon,
   Sidebar,
-  Menu,
-  Input,
   Responsive,
   Modal
 } from 'semantic-ui-react';
+import AppMenu from './AppMenu';
 import Marker from './Marker';
 import * as FoursquareAPI from '../utils/FoursquareAPI';
 import sortBy from 'sort-by';
@@ -19,6 +18,7 @@ import '../index.css';
 
 class App extends PureComponent {
   state = {
+    sideBarVisible: false,
     center: {
       lat: -22.84406,
       lng: -43.317548
@@ -26,13 +26,10 @@ class App extends PureComponent {
     zoom: 15,
     bounds: {},
     size: {},
-    sideBarVisible: false,
     selectedPOI: "",
     filter: "",
     loadingPOIs: true,
     pois: [],
-    sideBarWidth: window.innerWidth > Responsive.onlyMobile.maxWidth ?
-      'wide' : 'thin'
   };
 
   /**
@@ -104,33 +101,17 @@ class App extends PureComponent {
   }
 
   /**
-   * Métodos de controle da exibição da SideBar
-   */
-  handleHideClick = () => this.setState({ sideBarVisible: false });
-  handleShowClick = () => this.setState({ sideBarVisible: true });
-  handleSidebarHide = () => this.setState({ sideBarVisible: false });
-
-  /**
-   * Método para alternar a largura da SideBar conforme o tamanho da viewport
-   */
-  toggleSideBarWidth = () => {
-    const {sideBarWidth} = this.state;
-    if(sideBarWidth === 'wide' &&
-        window.innerWidth <= Responsive.onlyMobile.maxWidth){
-      this.setState({sideBarWidth: 'thin'});
-    }
-    if(sideBarWidth === 'thin' &&
-        window.innerWidth > Responsive.onlyMobile.maxWidth){
-      this.setState({sideBarWidth: 'wide'});
-    }
-  };
-
-  /**
    * Método para setar o filtro de POI's de acordo com o texto digitado
    */
   setFilter = (e) => {
     this.setState({filter: e.target.value});
   };
+
+  /**
+   * Métodos de controle da exibição da SideBar
+   */
+  onSideBarHide = () => this.setState({ sideBarVisible: false });
+  onSideBarShow = () => this.setState({ sideBarVisible: true });
 
   // Todos os Markers são buscados aqui. Em caso de erro, é necessário
   // recarregar o app, pois não há o que fazer sem os Markers... ;-)
@@ -148,7 +129,6 @@ class App extends PureComponent {
       sideBarVisible,
       selectedPOI,
       pois,
-      sideBarWidth,
       filter,
       loadingPOIs
     } = this.state;
@@ -171,43 +151,13 @@ class App extends PureComponent {
       />
     ));
 
-    // Itens do menu da SideBar. Possui 3 status de acordo com a disponibilidade
-    // dos Markers (sucesso em obtê-los da API):
-    // - NORMAL - Exibe todos os POI's
-    // - LOADING - Exibe um status de loading
-    // - ERRO - Exibe um status de erro
-    const MenuPOIs = loadingPOIs ? ( // LOADING
-      <Menu.Item>
-        <Icon loading name='circle notch' />
-        Loading...
-      </Menu.Item>
-    ) : !filteredPOIs.length ? ( // ERRO
-      <Menu.Item>
-        <Icon name='grav' />
-        Places unavailable. Try again later...
-      </Menu.Item>
-    ) : filteredPOIs.map(poi => ( // NORMAL
-      <Menu.Item as='a'
-        key={poi.id}
-        active={poi.id === selectedPOI}
-        onClick={() => this.onChildClick(null, {
-          id: poi.id,
-          lat: poi.location.lat,
-          lng: poi.location.lng
-        })}
-      >
-        <Icon name='food' />
-        {poi.name}
-      </Menu.Item>
-    ));
-
     // Conteúdo do Modal inicial. Não é possível desabilitá-lo.
     // Possui 3 status de acordo com a disponibilidade dos Markers (sucesso em
     // obtê-los da API):
     // - LOADING - Exibe um status de loading
     // - ERRO - Exibe um status de erro
     // - NORMAL - Desaparece após obter os POI's
-    const ModalContent = !(loadingPOIs || filteredPOIs.length) ? ( // ERRO
+    const ModalContent = !(loadingPOIs || pois.length) ? ( // ERRO
       <Container text fluid textAlign='center'>
         <Icon name='grav' size='massive' />
         <Header as='h3' inverted>
@@ -228,34 +178,20 @@ class App extends PureComponent {
     return (
       <Container fluid>
         <Sidebar.Pushable as={Segment} basic>
-          <Sidebar
-            as={Menu}
-            animation='overlay'
-            direction='left'
-            icon='labeled'
-            inverted
-            onHide={this.handleSidebarHide}
-            vertical
-            visible={sideBarVisible}
-            width={sideBarWidth}
-          >
-            <Menu.Item header>
-              Locations
-            </Menu.Item>
-            <Input
-              fluid
-              icon={<Icon name='filter' inverted bordered color='teal' />}
-              placeholder='Filter...'
-              onChange={this.setFilter}
-              />
-            <Responsive onUpdate={() => this.toggleSideBarWidth()} />
-            { MenuPOIs }
-          </Sidebar>
-
+          <AppMenu
+            sideBarVisible = {sideBarVisible}
+            loadingPOIs = {loadingPOIs}
+            pois = {pois}
+            filteredPOIs = {filteredPOIs}
+            selectedPOI = {selectedPOI}
+            handleItemClick = {this.onChildClick}
+            handleFilterChange = {this.setFilter}
+            handleSidebarHide = {this.onSideBarHide}
+          />
           <Sidebar.Pusher className='mainSideBar'>
             <Segment basic vertical inverted className='mainHeader'>
               <Header as='h1' inverted color='grey'>
-                <Icon name='bars' onClick={this.handleShowClick}/>
+                <Icon name='bars' onClick={this.onSideBarShow}/>
                 Find My Pizza
               </Header>
             </Segment>
@@ -271,7 +207,7 @@ class App extends PureComponent {
               </GoogleMapReact>
             </div>
             <Modal
-              open={loadingPOIs || !filteredPOIs.length}
+              open={loadingPOIs || !pois.length}
               basic
               size='small'
               >
