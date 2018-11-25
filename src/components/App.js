@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import GoogleMapReact from 'google-map-react';
 import {
   Container,
   Segment,
@@ -10,7 +9,7 @@ import {
   Modal
 } from 'semantic-ui-react';
 import AppMenu from './AppMenu';
-import Marker from './Marker';
+import Map from './Map';
 import * as FoursquareAPI from '../utils/FoursquareAPI';
 import sortBy from 'sort-by';
 import {removeCaseAndAccents} from '../utils/helpers';
@@ -36,7 +35,7 @@ class App extends PureComponent {
    * É necessário guardar os limites e tamanho do mapa sempre que ele muda
    * (zoom ou drag) para calcular a centralização correta de um marker clicado
    */
-  onChange = ({bounds, size}) => this.setState({bounds, size});
+  onMapChange = ({bounds, size}) => this.setState({bounds, size});
 
   /**
    * Evento de clique de um Marker
@@ -46,7 +45,7 @@ class App extends PureComponent {
    * novamente, serão utilizados os dados do state. Apenas Markers que não
    * receberam dados com sucesso da API fazem a consulta novamente na mesma.
    */
-  onChildClick = (key, childProps) => {
+  onMarkerClick = (key, childProps) => {
     const {selectedPOI, pois, bounds, size} = this.state;
 
     if(selectedPOI !== childProps.id){
@@ -98,7 +97,7 @@ class App extends PureComponent {
         lng: childProps.lng
       }
     });
-  }
+  };
 
   /**
    * Método para setar o filtro de POI's de acordo com o texto digitado
@@ -116,13 +115,13 @@ class App extends PureComponent {
   // Todos os Markers são buscados aqui. Em caso de erro, é necessário
   // recarregar o app, pois não há o que fazer sem os Markers... ;-)
   componentDidMount(){
-      FoursquareAPI.getAllPOIs()
-      .then(pois => this.setState({pois, loadingPOIs: false}))
-      .catch(error => {
-        console.log(error);
-        this.setState({pois: [], loadingPOIs: false})
-      });
-};
+    FoursquareAPI.getAllPOIs()
+    .then(pois => this.setState({pois, loadingPOIs: false}))
+    .catch(error => {
+      console.log(error);
+      this.setState({pois: [], loadingPOIs: false})
+    });
+  };
 
   render() {
     const {
@@ -130,7 +129,9 @@ class App extends PureComponent {
       selectedPOI,
       pois,
       filter,
-      loadingPOIs
+      loadingPOIs,
+      center,
+      zoom,
     } = this.state;
 
     // POI's filtrados e ordenados por nome
@@ -138,18 +139,6 @@ class App extends PureComponent {
       removeCaseAndAccents(p.name)
       .includes(removeCaseAndAccents(filter))
     ).sort(sortBy('name'));
-
-    const Markers = filteredPOIs.map(poi => (
-      <Marker
-        key={poi.id}
-        id={poi.id}
-        lat={poi.location.lat}
-        lng={poi.location.lng}
-        title={poi.name}
-        selectedPOI={selectedPOI}
-        pois={pois}
-      />
-    ));
 
     // Conteúdo do Modal inicial. Não é possível desabilitá-lo.
     // Possui 3 status de acordo com a disponibilidade dos Markers (sucesso em
@@ -184,7 +173,7 @@ class App extends PureComponent {
             pois = {pois}
             filteredPOIs = {filteredPOIs}
             selectedPOI = {selectedPOI}
-            handleItemClick = {this.onChildClick}
+            handleItemClick = {this.onMarkerClick}
             handleFilterChange = {this.setFilter}
             handleSidebarHide = {this.onSideBarHide}
           />
@@ -195,17 +184,16 @@ class App extends PureComponent {
                 Find My Pizza
               </Header>
             </Segment>
-            <div className='appMap'>
-              <GoogleMapReact
-                bootstrapURLKeys={{ key: process.env.REACT_APP_MAPS_API_KEY }}
-                center={this.state.center}
-                zoom={this.state.zoom}
-                onChildClick={this.onChildClick}
-                onChange={this.onChange}
-              >
-                { Markers }
-              </GoogleMapReact>
-            </div>
+            <Map
+              filteredPOIs = {filteredPOIs}
+              selectedPOI = {selectedPOI}
+              pois = {pois}
+              center = {center}
+              zoom = {zoom}
+              onChildClick = {this.onMarkerClick}
+              onChange = {this.onMapChange}
+            />
+
             <Modal
               open={loadingPOIs || !pois.length}
               basic
